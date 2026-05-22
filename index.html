@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitCoach AI — Your AI coach that never forgets</title>
+  <meta name="description" content="Stop re-typing your macros into ChatGPT. FitCoach AI remembers your body, your history, and your goals — so every check-in builds on the last.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0a;
+      color: #f5f5f5;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Gradient accents ── */
+    .gradient-text {
+      background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 50%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 50%, #f472b6 100%);
+    }
+
+    /* ── Container ── */
+    .container { max-width: 680px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Nav ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; max-width: 680px; margin: 0 auto;
+    }
+    .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+    .logo span { color: #22d3ee; }
+
+    /* ── Hero ── */
+    .hero { padding: 60px 0 48px; text-align: center; }
+    .hero .badge {
+      display: inline-block; padding: 6px 16px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12); font-size: 13px; color: #a3a3a3;
+      margin-bottom: 24px; letter-spacing: 0.3px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 8vw, 56px); font-weight: 800; line-height: 1.1;
+      letter-spacing: -1.5px; margin-bottom: 20px;
+    }
+    .hero p {
+      font-size: 18px; color: #a3a3a3; max-width: 480px; margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    /* ── Form ── */
+    .waitlist-form {
+      display: flex; gap: 10px; max-width: 440px; margin: 0 auto;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .waitlist-form input {
+      flex: 1; min-width: 220px; padding: 14px 18px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+      color: #f5f5f5; font-size: 16px; font-family: inherit; outline: none;
+      transition: border-color 0.2s;
+    }
+    .waitlist-form input::placeholder { color: #525252; }
+    .waitlist-form input:focus { border-color: #22d3ee; }
+    .waitlist-form button {
+      padding: 14px 28px; border-radius: 12px; border: none;
+      font-size: 16px; font-weight: 600; color: #0a0a0a; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
+    }
+    .waitlist-form button:hover { opacity: 0.9; transform: translateY(-1px); }
+    .waitlist-form button:active { transform: translateY(0); }
+    .waitlist-form button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .form-message {
+      margin-top: 12px; font-size: 14px; min-height: 20px;
+      transition: all 0.3s;
+    }
+    .form-message.success { color: #34d399; }
+    .form-message.error { color: #f87171; }
+
+    .social-proof {
+      margin-top: 16px; font-size: 13px; color: #525252;
+    }
+
+    /* ── Sections ── */
+    section { padding: 80px 0; }
+    section h2 {
+      font-size: 30px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 16px;
+    }
+    section h3 {
+      font-size: 18px; font-weight: 600; margin-bottom: 8px;
+    }
+    section p, section li { color: #a3a3a3; font-size: 16px; }
+
+    /* ── Pain / How it works ── */
+    .pain-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 32px;
+    }
+    .pain-card, .step-card {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; padding: 24px;
+    }
+    .pain-card .icon, .step-card .num {
+      font-size: 24px; margin-bottom: 12px; display: block;
+    }
+    .step-card .num {
+      width: 36px; height: 36px; border-radius: 10px; display: flex;
+      align-items: center; justify-content: center; font-size: 16px;
+      font-weight: 700; color: #0a0a0a;
+    }
+
+    .steps { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
+
+    /* ── Features ── */
+    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 32px; }
+    .feature { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; }
+    .feature .check { color: #22d3ee; font-weight: 700; flex-shrink: 0; }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center; padding: 80px 0 100px;
+    }
+    .cta-section h2 { margin-bottom: 12px; }
+    .cta-section p { margin-bottom: 32px; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 32px 24px; border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 13px; color: #525252;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      .hero { padding: 40px 0 36px; }
+      .hero h1 { font-size: 32px; }
+      .hero p { font-size: 16px; }
+      .pain-grid, .features { grid-template-columns: 1fr; }
+      section { padding: 56px 0; }
+      section h2 { font-size: 24px; }
+      .waitlist-form { flex-direction: column; }
+      .waitlist-form input, .waitlist-form button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">FitCoach<span>AI</span></div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="container">
+    <div class="badge">🚀 Early access — join the waitlist</div>
+    <h1>The AI coach that <span class="gradient-text">remembers you</span></h1>
+    <p>
+      Stop explaining your macros to ChatGPT every single time. FitCoach AI
+      knows your body, your history, and your goals — so every check-in picks
+      up right where you left off.
+    </p>
+    <form class="waitlist-form" id="waitlist-form">
+      <input type="email" id="email" placeholder="Enter your email" required autocomplete="email">
+      <button type="submit" class="gradient-bg">Get early access</button>
+    </form>
+    <div class="form-message" id="form-message"></div>
+    <div class="social-proof">Join others who are done with manual tracking</div>
+  </div>
+</section>
+
+<!-- ── The pain ── -->
+<section>
+  <div class="container">
+    <h2>You know the drill.</h2>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <span class="icon">📋</span>
+        <h3>Re-type everything</h3>
+        <p>Open ChatGPT. Explain your stats, your macros from last week, your goal weight — again. Every. Single. Time.</p>
+      </div>
+      <div class="pain-card">
+        <span class="icon">🧠</span>
+        <h3>No memory, no progress</h3>
+        <p>ChatGPT forgets last week's check-in the moment you close the tab. Your coach has amnesia and your progress resets.</p>
+      </div>
+      <div class="pain-card">
+        <span class="icon">📊</span>
+        <h3>Spreadsheet hell</h3>
+        <p>You track macros in MyFitnessPal, workouts in Notes, and goals in a Notion table. Three apps, zero integration, constant friction.</p>
+      </div>
+      <div class="pain-card">
+        <span class="icon">😤</span>
+        <h3>You give up</h3>
+        <p>The tracking overhead kills your momentum. You're not lazy — the tooling is broken. You stop tracking and the results stall.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ── -->
+<section>
+  <div class="container">
+    <h2>One app. Total continuity.</h2>
+    <div class="steps">
+      <div class="step-card">
+        <span class="num gradient-bg">1</span>
+        <h3>Tell FitCoach about yourself — once</h3>
+        <p>Your stats, goals, preferences, and dietary constraints. The AI remembers everything, forever.</p>
+      </div>
+      <div class="step-card">
+        <span class="num gradient-bg">2</span>
+        <h3>Log your meals or just describe them</h3>
+        <p>Type "had chicken and rice for lunch" and FitCoach calculates the macros. No barcode scanning required.</p>
+      </div>
+      <div class="step-card">
+        <span class="num gradient-bg">3</span>
+        <h3>Weekly check-in. Adaptive coaching.</h3>
+        <p>Every week, your AI coach reviews your progress against your goal. It adjusts macros, suggests workouts, and keeps you accountable — with full context of your entire history.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section>
+  <div class="container">
+    <h2>What makes it different</h2>
+    <div class="features">
+      <div class="feature">
+        <span class="check">✓</span>
+        <div><strong>Persistent AI memory</strong><br><span style="color:#a3a3a3">Never re-enter data. Your coach remembers your body stats, macro history, and check-in notes across every session.</span></div>
+      </div>
+      <div class="feature">
+        <span class="check">✓</span>
+        <div><strong>Natural language logging</strong><br><span style="color:#a3a3a3">"Eggs and toast for breakfast" → instant macros. No dropdowns, no barcodes, no friction.</span></div>
+      </div>
+      <div class="feature">
+        <span class="check">✓</span>
+        <div><strong>Adaptive weekly planning</strong><br><span style="color:#a3a3a3">Macros and workouts adjust based on your actual progress, not a static template.</span></div>
+      </div>
+      <div class="feature">
+        <span class="check">✓</span>
+        <div><strong>Goal-aware accountability</strong><br><span style="color:#a3a3a3">Your coach knows if you're cutting, bulking, or maintaining — and pushes you toward that specific outcome.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Social proof / founder story ── -->
+<section>
+  <div class="container">
+    <h2>Built from a real result</h2>
+    <p>
+      Our founder used ChatGPT to manually track macros for 12 weeks and hit a
+      body composition goal that had been elusive for years. The method worked —
+      but the workflow was exhausting. FitCoach AI turns that manual ChatGPT
+      process into a seamless app that never forgets a single data point.
+    </p>
+  </div>
+</section>
+
+<!-- ── Bottom CTA ── -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Ready to stop explaining yourself?</h2>
+    <p>Join the waitlist. Be first in line when we launch.</p>
+    <form class="waitlist-form" id="waitlist-form-bottom">
+      <input type="email" id="email-bottom" placeholder="Enter your email" required autocomplete="email">
+      <button type="submit" class="gradient-bg">Get early access</button>
+    </form>
+    <div class="form-message" id="form-message-bottom"></div>
+  </div>
+</section>
+
+<footer>
+  © 2026 FitCoach AI · Coming soon
+</footer>
+
+<script>
+  async function submitEmail(formEl, emailInput, messageEl) {
+    const email = emailInput.value.trim();
+    if (!email || !email.includes('@')) {
+      messageEl.textContent = 'Please enter a valid email address.';
+      messageEl.className = 'form-message error';
+      return;
+    }
+
+    const btn = formEl.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Joining...';
+    messageEl.textContent = '';
+    messageEl.className = 'form-message';
+
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (res.ok) {
+        messageEl.textContent = "You're on the list! We'll let you know when we launch.";
+        messageEl.className = 'form-message success';
+        emailInput.value = '';
+        btn.textContent = '✓ Joined';
+      } else {
+        const data = await res.json();
+        messageEl.textContent = data.error || 'Something went wrong. Try again.';
+        messageEl.className = 'form-message error';
+        btn.disabled = false;
+        btn.textContent = 'Get early access';
+      }
+    } catch (err) {
+      messageEl.textContent = 'Network error. Please try again.';
+      messageEl.className = 'form-message error';
+      btn.disabled = false;
+      btn.textContent = 'Get early access';
+    }
+  }
+
+  document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitEmail(this, document.getElementById('email'), document.getElementById('form-message'));
+  });
+
+  document.getElementById('waitlist-form-bottom').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitEmail(this, document.getElementById('email-bottom'), document.getElementById('form-message-bottom'));
+  });
+</script>
+
+</body>
+</html>
