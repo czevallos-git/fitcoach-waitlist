@@ -1,12 +1,8 @@
 {
   "version": 2,
-  "functions": {
-    "api/waitlist.js": {
-      "runtime": "@vercel/node@3"
-    }
-  },
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/api/health", "dest": "/api/waitlist" },
+    { "src": "/api/waitlist", "dest": "/api/waitlist" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

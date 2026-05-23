@@ -1,20 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-
-const WAITLIST_FILE = path.join('/tmp', 'waitlist.json');
-
-function loadWaitlist() {
-  try {
-    if (fs.existsSync(WAITLIST_FILE)) {
-      return JSON.parse(fs.readFileSync(WAITLIST_FILE, 'utf-8'));
-    }
-  } catch (e) {}
-  return [];
-}
-
-function saveWaitlist(list) {
-  fs.writeFileSync(WAITLIST_FILE, JSON.stringify(list, null, 2));
-}
+// In-memory store (persists within warm lambda, resets on cold start)
+// For production: use Vercel KV or Supabase
+const waitlist = [];
 
 module.exports = async (req, res) => {
   // CORS
@@ -25,22 +11,22 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  if (req.method === 'GET' && req.url.startsWith('/api/health')) {
-    return res.json({ status: 'ok', waitlistCount: loadWaitlist().length });
+  // GET /api/health or /api/waitlist
+  if (req.method === 'GET') {
+    return res.json({ status: 'ok', waitlistCount: waitlist.length });
   }
 
-  if (req.method === 'POST' && req.url.startsWith('/api/waitlist')) {
+  // POST /api/waitlist
+  if (req.method === 'POST') {
     const { email } = req.body || {};
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return res.status(400).json({ error: 'Valid email required.' });
     }
     const normalized = email.trim().toLowerCase();
-    const waitlist = loadWaitlist();
     if (waitlist.find(e => e.email === normalized)) {
       return res.status(200).json({ ok: true, message: 'Already on the list!' });
     }
     waitlist.push({ email: normalized, joinedAt: new Date().toISOString() });
-    saveWaitlist(waitlist);
     console.log(`New signup: ${normalized} (total: ${waitlist.length})`);
     return res.status(200).json({ ok: true, count: waitlist.length });
   }
