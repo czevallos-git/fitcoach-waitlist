@@ -1,6 +1,6 @@
 # fitcoach-waitlist
 
-FitCoach AI waitlist landing page
+FitCoach AI waitlist landing page.
 
 ## Getting started
 
