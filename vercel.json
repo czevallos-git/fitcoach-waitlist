@@ -3,6 +3,9 @@
   "functions": {
     "api/waitlist.js": {
       "includeFiles": "lib/**"
+    },
+    "api/debug.js": {
+      "includeFiles": "lib/**"
     }
   },
   "routes": [
