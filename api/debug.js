@@ -4,18 +4,36 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   const info = {
-    supabaseUrl: process.env.SUPABASE_URL ? `${process.env.SUPABASE_URL.slice(0, 30)}...` : 'NOT SET',
-    supabaseKey: process.env.SUPABASE_ANON_KEY ? `${process.env.SUPABASE_ANON_KEY.slice(0, 15)}...` : 'NOT SET',
+    supabaseUrlSet: !!process.env.SUPABASE_URL,
+    supabaseKeySet: !!process.env.SUPABASE_ANON_KEY,
   };
 
+  // Test GET count
   try {
-    const { data, error, count } = await supabase
-      .from('waitlist')
-      .select('*', { count: 'exact', head: true });
-
-    info.queryResult = error ? { error: error.message, code: error.code, details: error.details } : { count, dataPreview: 'ok' };
+    const result = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
+    info.getResult = {
+      count: result.count,
+      status: result.status,
+      statusText: result.statusText,
+      error: result.error ? JSON.stringify(result.error) : null,
+      errorType: typeof result.error,
+    };
   } catch (err) {
-    info.queryError = err.message;
+    info.getError = err.message;
+  }
+
+  // Test INSERT with a timestamp email
+  const testEmail = `debug-${Date.now()}@fitcoach.ai`;
+  try {
+    const insertResult = await supabase.from('waitlist').insert({ email: testEmail }).select();
+    info.insertResult = {
+      status: insertResult.status,
+      statusText: insertResult.statusText,
+      error: insertResult.error ? JSON.stringify(insertResult.error) : null,
+      data: insertResult.data,
+    };
+  } catch (err) {
+    info.insertError = err.message;
   }
 
   return res.json(info);
