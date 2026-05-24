@@ -1,29 +1,15 @@
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
+const supabase = require('./lib/supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const WAITLIST_FILE = path.join(__dirname, 'waitlist.json');
 
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Load existing waitlist
-function loadWaitlist() {
-  try {
-    if (fs.existsSync(WAITLIST_FILE)) {
-      return JSON.parse(fs.readFileSync(WAITLIST_FILE, 'utf-8'));
-    }
-  } catch (e) { /* ignore */ }
-  return [];
-}
-
-function saveWaitlist(list) {
-  fs.writeFileSync(WAITLIST_FILE, JSON.stringify(list, null, 2));
-}
-
-app.post('/api/waitlist', (req, res) => {
+// POST /api/waitlist — add email signup
+app.post('/api/waitlist', async (req, res) => {
   const { email } = req.body;
 
   if (!email || typeof email !== 'string' || !email.includes('@')) {
@@ -31,25 +17,59 @@ app.post('/api/waitlist', (req, res) => {
   }
 
   const normalized = email.trim().toLowerCase();
-  const waitlist = loadWaitlist();
 
-  if (waitlist.find(e => e.email === normalized)) {
-    return res.status(200).json({ ok: true, message: 'Already on the list!' });
+  try {
+    const { data: existing } = await supabase
+      .from('waitlist')
+      .select('email')
+      .eq('email', normalized)
+      .maybeSingle();
+
+    if (existing) {
+      return res.status(200).json({ ok: true, message: 'Already on the list!' });
+    }
+
+    const { error: insertError } = await supabase
+      .from('waitlist')
+      .insert({ email: normalized });
+
+    if (insertError) {
+      console.error('Supabase insert error:', insertError);
+      if (insertError.code === '23505') {
+        return res.status(200).json({ ok: true, message: 'Already on the list!' });
+      }
+      return res.status(500).json({ error: 'Failed to save signup' });
+    }
+
+    const { count } = await supabase
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true });
+
+    console.log(`New signup: ${normalized} (total: ${count})`);
+    res.status(200).json({ ok: true, count: count || 1 });
+  } catch (err) {
+    console.error('POST /api/waitlist error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  waitlist.push({
-    email: normalized,
-    joinedAt: new Date().toISOString()
-  });
-
-  saveWaitlist(waitlist);
-  console.log(`New signup: ${normalized} (total: ${waitlist.length})`);
-  res.status(200).json({ ok: true, count: waitlist.length });
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', waitlistCount: loadWaitlist().length });
+// GET /api/health — health check + waitlist count
+app.get('/api/health', async (req, res) => {
+  try {
+    const { count, error } = await supabase
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true });
+
+    if (error) {
+      console.error('Supabase count error:', error);
+      return res.json({ status: 'ok', waitlistCount: 0, note: 'Supabase unavailable' });
+    }
+
+    res.json({ status: 'ok', waitlistCount: count });
+  } catch (err) {
+    console.error('Health check error:', err);
+    res.json({ status: 'ok', waitlistCount: 0, note: 'Supabase unavailable' });
+  }
 });
 
 // Fall back to index.html
